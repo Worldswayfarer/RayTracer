@@ -1,11 +1,13 @@
 #include "image.h"
 #include "printer.h"
 #include "image_data.h"
+#include "window.h"
 #undef main
 
 int main()
 {
-	struct image_data * img = create_image();
-	print_image(img);
+	
+	print_image(create_image());
+	//sdl_window(img);
 	return 0;
 }

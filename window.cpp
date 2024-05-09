@@ -1,20 +1,46 @@
-
-
+#include "image_data.h"
 #include <SDL.h>
 
 
-int sdl_window()
-{
+int sdl_window(image_data *img)
+{	
+	int width = (*img).image_width;
+	int height = (*img).image_height;
+
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* window = SDL_CreateWindow("RayTracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("RayTracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
+	if (renderer == nullptr)
+	{
+		return 1;
+	}
+    
 
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	SDL_Texture* texture = SDL_CreateTexture(renderer, NULL, NULL, width, height);
+	
+	SDL_QueryTexture(texture, NULL, NULL, &width, &height);
+		
+	SDL_UpdateTexture(texture, NULL, (*img).image_pixels, width * sizeof(char));
 
-    SDL_RenderClear(renderer);
+
+	// Copy the texture to the renderer.
+	SDL_Rect srcRect, bounds;
+	srcRect.x = 0;
+	srcRect.y = 0;
+	srcRect.w = width;
+	srcRect.h = height;
+	bounds = srcRect;
+
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, texture, &srcRect, &bounds);
+
     SDL_RenderPresent(renderer);
 
     SDL_Delay(3000);
+
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
 
     return 0;
 }

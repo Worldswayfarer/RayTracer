@@ -1,4 +1,4 @@
 #pragma once
 #include "image_data.h"
 
-int print_image(struct image_data);
+int sdl_window(image_data* img);
