@@ -6,8 +6,8 @@
 
 int main()
 {
-	
-	print_image(create_image());
-	//sdl_window(img);
+	image_data* img = create_image();
+	print_image(img);
+	sdl_window(img);
 	return 0;
 }
