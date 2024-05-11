@@ -8,6 +8,9 @@ int main()
 {
 	image_data* img = create_image();
 	print_image(img);
-	sdl_window(img);
+
+
+	//displaying an image is currently not working
+	//sdl_window(img);
 	return 0;
 }

@@ -4,8 +4,8 @@
 image_data* create_image()
 {
 
-    const int image_width = 256;
-    const int image_height = 256;
+    const int image_width = 1920;
+    const int image_height = 1080;
     
     unsigned char* image_pixels = new unsigned char[(double)image_width * image_height * 3];
     

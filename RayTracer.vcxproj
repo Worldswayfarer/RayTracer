@@ -139,6 +139,8 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="image_data.h" />
     <ClInclude Include="printer.h" />
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="vector3.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
