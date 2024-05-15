@@ -133,6 +133,7 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="printer.cpp" />
+    <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +141,7 @@
     <ClInclude Include="image_data.h" />
     <ClInclude Include="printer.h" />
     <ClInclude Include="ray.h" />
+    <ClInclude Include="raytracer.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
