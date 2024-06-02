@@ -53,5 +53,11 @@
     <ClInclude Include="raytracer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="object_loader.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle3.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

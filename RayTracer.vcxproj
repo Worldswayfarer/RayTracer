@@ -104,12 +104,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kenny\source\C++_libraries\stb-master;C:\Users\Kenny\source\C++_libraries\SDL2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Kenny\source\C++_libraries\stb-master;C:\Users\Kenny\source\C++_libraries\SDL2\include;C:\Users\Kenny\source\C++_libraries\tinyobjloader-release</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Kenny\source\C++_libraries\stb-master\stb_image_resize_test;C:\Users\Kenny\source\C++_libraries\SDL2\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Kenny\source\C++_libraries\tinyobjloader-release;C:\Users\Kenny\source\C++_libraries\stb-master\stb_image_resize_test;C:\Users\Kenny\source\C++_libraries\SDL2\lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -139,9 +139,11 @@
   <ItemGroup>
     <ClInclude Include="image.h" />
     <ClInclude Include="image_data.h" />
+    <ClInclude Include="object_loader.h" />
     <ClInclude Include="printer.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="raytracer.h" />
+    <ClInclude Include="triangle3.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>

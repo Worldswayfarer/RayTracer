@@ -52,6 +52,7 @@ public:
 // point3 is just an alias for vec3, but useful for geometric clarity in the code.
 using point3 = vector3;
 
+using color3 = vector3;
 
 // Vector Utility Functions
 
@@ -80,13 +81,13 @@ inline vector3 operator/(const vector3& v, double t) {
     return (1 / t) * v;
 }
 
-inline double dot(const vector3& u, const vector3& v) {
+inline double dot_product(const vector3& u, const vector3& v) {
     return u.e[0] * v.e[0]
         + u.e[1] * v.e[1]
         + u.e[2] * v.e[2];
 }
 
-inline vector3 cross(const vector3& u, const vector3& v) {
+inline vector3 cross_product(const vector3& u, const vector3& v) {
     return vector3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
         u.e[2] * v.e[0] - u.e[0] * v.e[2],
         u.e[0] * v.e[1] - u.e[1] * v.e[0]);
