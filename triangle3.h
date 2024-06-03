@@ -15,7 +15,8 @@ public:
     const point3& a() const { return _a; }
     const point3& b() const { return _b; }
     const point3& c() const { return _c; } 
-    point3* ray_triangle_intersection(ray& raymond)
+
+    double ray_triangle_intersection(ray& raymond)
     {
         constexpr double epsilon = std::numeric_limits<double>::epsilon();
 
@@ -32,21 +33,21 @@ public:
         double u = inv_det * dot_product(s, ray_cross_e2);
 
         if (u < 0 || u > 1)
-            return {};
+            return {}; // The intersection point doesnt lie in the triangle.
 
         vector3 s_cross_e1 = cross_product(s, edge1);
         double v = inv_det * dot_product(raymond.direction(), s_cross_e1);
 
         if (v < 0 || u + v > 1)
-            return {};
+            return {}; // The intersection point doesnt lie in the triangle.
 
         // At this stage we can compute t to find out where the intersection point is on the line.
         double t = inv_det * dot_product(edge2, s_cross_e1);
 
         if (t > epsilon) // ray intersection
         {
-            point3 intersection(raymond.direction() + raymond.origin() * t);
-            return  &intersection;
+            //point3 intersection(raymond.direction() + raymond.origin() * t);
+            return  t;
         }
         else // This means that there is a line intersection but not a ray intersection.
             return {};
