@@ -4,11 +4,29 @@
 #define TRIANGLE
 
 #include "ray.h"
+#include "RGB_Material.h"
 #include <limits>
+
+struct Intersection {
+public:
+
+    RGB_Material _material;
+    //expect vector to be normalized
+    vector3 _normal;
+    point3 _intersection_point;
+    double _ray_t;
+
+    Intersection(const RGB_Material& _material, const vector3& _normal, const point3& _intersection_point, double _ray_t)
+        : _material(_material), _normal(_normal), _intersection_point(_intersection_point), _ray_t(_ray_t)
+    {
+    }
+
+    Intersection() = default;
+};
 
 class triangle3 {
 public:
-    triangle3() {}
+    triangle3() = default;
 
     triangle3(const point3 a, const point3 b, const point3 c) : _a(a), _b(b), _c(c) {}
 
@@ -16,12 +34,20 @@ public:
     const point3& b() const { return _b; }
     const point3& c() const { return _c; } 
 
-    double ray_triangle_intersection(ray& raymond)
+    RGB_Material _material;
+
+    void setMaterial(RGB_Material material)
+    {
+        _material = material;
+    }
+
+    Intersection* ray_triangle_intersection(ray& raymond)
     {
         constexpr double epsilon = std::numeric_limits<double>::epsilon();
 
         vector3 edge1 = _b - _a;
         vector3 edge2 = _c - _a;
+
         vector3 ray_cross_e2 = cross_product(raymond.direction(), edge2);
         double det = dot_product(edge1, ray_cross_e2);
 
@@ -46,8 +72,9 @@ public:
 
         if (t > epsilon) // ray intersection
         {
-            //point3 intersection(raymond.direction() + raymond.origin() * t);
-            return  t;
+            point3 intersection_point = raymond.origin() + t * raymond.direction();
+            Intersection inter = Intersection(_material, unit_vector(cross_product(edge1, edge2)), intersection_point, t);
+            return  &inter;
         }
         else // This means that there is a line intersection but not a ray intersection.
             return {};
@@ -57,6 +84,11 @@ private:
     point3 _a;
     point3 _b;
     point3 _c;
+public:
+
+
+
+    
 };
 
 #endif

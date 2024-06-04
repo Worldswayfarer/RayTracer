@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Kenny\source\C++_libraries\stb-master;C:\Users\Kenny\source\C++_libraries\SDL2\include;C:\Users\Kenny\source\C++_libraries\tinyobjloader-release</AdditionalIncludeDirectories>
     </ClCompile>
@@ -143,6 +143,7 @@
     <ClInclude Include="printer.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="raytracer.h" />
+    <ClInclude Include="RGB_Material.h" />
     <ClInclude Include="triangle3.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="window.h" />

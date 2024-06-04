@@ -1,9 +1,13 @@
+
+
 #include "image.h"
 #include "printer.h"
 #include "image_data.h"
 #include "window.h"
 #include "raytracer.h"
 #undef main
+
+
 
 int main()
 {

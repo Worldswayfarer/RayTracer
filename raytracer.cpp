@@ -1,6 +1,10 @@
 #include "raytracer.h"
 #include "triangle3.h"
+#include "RGB_Material.h"
 #include <tuple>
+
+#include <cmath>
+
 
 double ray_sphere_intersetion(const point3& center, double radius, const ray& raymond) 
 {
@@ -17,7 +21,7 @@ double ray_sphere_intersetion(const point3& center, double radius, const ray& ra
 }
 
 
-vector3 ray_color(const ray& raymond) 
+vector3 sphere_color(const ray& raymond) 
 {   
     double t = ray_sphere_intersetion(point3(0, 0, -1), 0.5, raymond);
     if (t > 0.0) {
@@ -69,8 +73,48 @@ std::tuple<triangle3*, int> get_triangles()
     triangles[10] = triangle3(left_down_front, right_down_front, left_down_back);
     triangles[11] = triangle3(left_down_front, right_down_front, right_down_back);
 
+    RGB_Material material = RGB_Material(color3(1, 0.3, 0.1), color3(0, 0, 1), color3(1,1,1), 40);
+
+    for (int index = 0; index < triangle_count; index++)
+    {
+        triangles[index].setMaterial(material);
+    }
 
     return std::make_tuple(triangles, triangle_count);
+}
+
+
+color3 calculate_light(Intersection* intersection, point3 light_source, ray raymond)
+{
+    color3 source_light(1, 1, 1);
+    color3 light_ambiente(0, 0, 0);
+
+    color3 ambiente_component = light_ambiente * intersection->_material._ambiente;
+  
+    vector3 normal;
+
+    vector3 light_direction = -(intersection->_intersection_point - light_source);
+
+    if (dot_product(intersection->_normal, light_direction) < 0)
+    {
+        normal = -intersection->_normal;
+    }
+    else 
+    {
+        normal = intersection->_normal;
+    }
+    double lightxnormal = dot_product(unit_vector(normal), unit_vector(light_direction));
+
+    color3 diffuse_component = source_light * intersection->_material._diffuse * lightxnormal;
+
+
+    double norm_factor = (intersection->_material._shinyness + 2) / (2 * M_PI);
+    vector3 reflection = -light_source - 2 * dot_product(-light_source, normal) * normal;
+    color3 specular_component = source_light * norm_factor * intersection->_material._specular * pow(dot_product(reflection, raymond.direction()), intersection->_material._shinyness);
+    
+    color3 light_color = ambiente_component + diffuse_component + specular_component;
+
+    return light_color;
 }
 
 
@@ -98,6 +142,7 @@ image_data* trace_rays()
     
     unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
 
+    point3 light_source = vector3(5,5,-5);
 
     triangle3* triangles;
     size_t triangles_size;
@@ -108,43 +153,48 @@ image_data* trace_rays()
         for (int x = 0; x < image_width; x++)
         {
             point3 pixel_point = start_point + (x * viewport_delta_x) + (y * viewport_delta_y);
-            vector3 ray_direction = pixel_point - camera_center;
+            vector3 ray_direction = unit_vector(pixel_point - camera_center);
             ray raymond(camera_center, ray_direction);
 
             
-            vector3 unit_direction = unit_vector(raymond.direction());
+            vector3 unit_direction = raymond.direction();
             double a = 0.5 * (unit_direction.y() + 1.0);
             color3 pixel_color = (1.0 - a) * color3(1.0, 1.0, 1.0) + a * color3(0.5, 0.7, 1.0);
 
-            point3* closest_intersection_point = NULL;
+            Intersection* closest_intersection = NULL;
 
             for (int n = 0; n < triangles_size; n++)
             {
-                double ray_t = triangles[n].ray_triangle_intersection(raymond);
+                Intersection* intersection = triangles[n].ray_triangle_intersection(raymond);
+                if (!intersection)
+                {
+                    continue;
+                }
+                double ray_t = intersection->_ray_t;
                 if (ray_t < 0) { continue; }
 
                 vector3 distance_ray_point = raymond.direction() * ray_t;
                 // intersection is behind the image
                 if (distance_ray_point.length() < focal_length) { continue; }
 
-                point3 possible_intersection(raymond.origin() + distance_ray_point);
-                if (closest_intersection_point == NULL)
+                
+                if (!closest_intersection)
                 {
-                    closest_intersection_point = &possible_intersection;
+                    closest_intersection = intersection;
                     continue;
                 }
 
                 //determine which of the 2 points is closer to the image
-                if ((possible_intersection - pixel_point).length() < (*closest_intersection_point - pixel_point).length())
+                if ((intersection->_intersection_point - pixel_point).length() < (closest_intersection->_intersection_point - pixel_point).length())
                 {
-                    closest_intersection_point = &possible_intersection;
+                    closest_intersection = intersection;
                 }
             }
 
             // change the pixel_color to red if an intersection occured
-            if (closest_intersection_point != NULL)
+            if (closest_intersection != NULL)
             {
-                pixel_color = color3(1, 0, 0);
+                pixel_color = calculate_light(closest_intersection, light_source, raymond);
             }
             
             image_pixels[3 * (y * image_width + x)] = unsigned char(pixel_color.x() * 255.999);
