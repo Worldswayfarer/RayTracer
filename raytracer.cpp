@@ -67,13 +67,13 @@ std::tuple<triangle3*, int> get_triangles()
     triangles[6] = triangle3(right_front, right_back, right_down_front);
     triangles[7] = triangle3(right_down_back, right_back, right_down_front);
     //top
-    triangles[8] = triangle3(left_front, right_front, left_back);
+    triangles[8] = triangle3(left_front, right_back, left_back);
     triangles[9] = triangle3(left_front, right_front, right_back);
     //bottom
     triangles[10] = triangle3(left_down_front, right_down_front, left_down_back);
     triangles[11] = triangle3(left_down_front, right_down_front, right_down_back);
 
-    RGB_Material material = RGB_Material(color3(1, 0.3, 0.1), color3(0, 0, 1), color3(1,1,1), 40);
+    RGB_Material material = RGB_Material(color3(1, 0.5, 0.3), color3(0, 1, 1), color3(1,1,1), 32);
 
     for (int index = 0; index < triangle_count; index++)
     {
@@ -87,13 +87,14 @@ std::tuple<triangle3*, int> get_triangles()
 color3 calculate_light(Intersection* intersection, point3 light_source, ray raymond)
 {
     color3 source_light(1, 1, 1);
-    color3 light_ambiente(0, 0, 0);
+    color3 light_ambiente(0.15, 0.15, 0.15);
 
     color3 ambiente_component = light_ambiente * intersection->_material._ambiente;
   
     vector3 normal;
 
-    vector3 light_direction = -(intersection->_intersection_point - light_source);
+    //points towards the lightsource
+    vector3 light_direction = unit_vector(light_source - intersection->_intersection_point);
 
     if (dot_product(intersection->_normal, light_direction) < 0)
     {
@@ -103,18 +104,20 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
     {
         normal = intersection->_normal;
     }
-    double lightxnormal = dot_product(unit_vector(normal), unit_vector(light_direction));
+    double lightxnormal = dot_product(normal, light_direction);
 
     color3 diffuse_component = source_light * intersection->_material._diffuse * lightxnormal;
 
 
     double norm_factor = (intersection->_material._shinyness + 2) / (2 * M_PI);
-    vector3 reflection = -light_source - 2 * dot_product(-light_source, normal) * normal;
-    color3 specular_component = source_light * norm_factor * intersection->_material._specular * pow(dot_product(reflection, raymond.direction()), intersection->_material._shinyness);
+    vector3 reflection_direction = unit_vector(-light_source - (2 * dot_product(-light_source, normal) * normal));
+    color3 specular_component = source_light * norm_factor 
+        * intersection->_material._specular 
+        * pow(dot_product(reflection_direction, -raymond.direction()), intersection->_material._shinyness);
     
     color3 light_color = ambiente_component + diffuse_component + specular_component;
 
-    return light_color;
+    return specular_component;
 }
 
 
@@ -142,7 +145,7 @@ image_data* trace_rays()
     
     unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
 
-    point3 light_source = vector3(5,5,-5);
+    point3 light_source = vector3(3,3,-3);
 
     triangle3* triangles;
     size_t triangles_size;
@@ -157,6 +160,7 @@ image_data* trace_rays()
             ray raymond(camera_center, ray_direction);
 
             
+            // background color
             vector3 unit_direction = raymond.direction();
             double a = 0.5 * (unit_direction.y() + 1.0);
             color3 pixel_color = (1.0 - a) * color3(1.0, 1.0, 1.0) + a * color3(0.5, 0.7, 1.0);
@@ -165,6 +169,7 @@ image_data* trace_rays()
 
             for (int n = 0; n < triangles_size; n++)
             {
+                //closest_intersection points to intersection, but the intersection gets rewritten every time
                 Intersection* intersection = triangles[n].ray_triangle_intersection(raymond);
                 if (!intersection)
                 {
@@ -196,7 +201,7 @@ image_data* trace_rays()
             {
                 pixel_color = calculate_light(closest_intersection, light_source, raymond);
             }
-            
+            delete closest_intersection;
             image_pixels[3 * (y * image_width + x)] = unsigned char(pixel_color.x() * 255.999);
             image_pixels[3 * (y * image_width + x) + 1] = unsigned char(pixel_color.y() * 255.999);
             image_pixels[3 * (y * image_width + x) + 2] = unsigned char(pixel_color.z() * 255.999);

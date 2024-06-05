@@ -16,12 +16,14 @@ public:
     point3 _intersection_point;
     double _ray_t;
 
-    Intersection(const RGB_Material& _material, const vector3& _normal, const point3& _intersection_point, double _ray_t)
-        : _material(_material), _normal(_normal), _intersection_point(_intersection_point), _ray_t(_ray_t)
-    {
-    }
+    
 
     Intersection() = default;
+
+    Intersection(const RGB_Material& material, const vector3& normal, const point3& intersection_point, double ray_t)
+        : _material(material), _normal(normal), _intersection_point(intersection_point), _ray_t(ray_t)
+    {
+    }
 };
 
 class triangle3 {
@@ -73,8 +75,8 @@ public:
         if (t > epsilon) // ray intersection
         {
             point3 intersection_point = raymond.origin() + t * raymond.direction();
-            Intersection inter = Intersection(_material, unit_vector(cross_product(edge1, edge2)), intersection_point, t);
-            return  &inter;
+            Intersection* inter = new Intersection(_material, unit_vector(cross_product(edge1, edge2)), intersection_point, t);
+            return  inter;
         }
         else // This means that there is a line intersection but not a ray intersection.
             return {};
