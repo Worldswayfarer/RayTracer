@@ -3,15 +3,18 @@
 struct RGB_Material 
 {
 	public:
-		color3 _ambiente;
-		color3 _diffuse;
-		color3 _specular;
-		double _shinyness;
 
 		RGB_Material() = default;
 
-		RGB_Material(const color3& _ambiente, const color3& _diffuse, const color3& _specular, double _shinyness)
-			: _ambiente(_ambiente), _diffuse(_diffuse), _specular(_specular), _shinyness(_shinyness)
-		{
-		}
+		color3 _object_color;
+		double _ambiente;
+		double _diffuse;
+		double _specular;
+		double _shinyness;
+
+
+
+		RGB_Material(const color3 object_color, const double ambiente, const double diffuse,
+			const double specular, const double shinyness) : _object_color(object_color),
+			_ambiente(ambiente), _diffuse(diffuse), _specular(specular), _shinyness(shinyness) {}
 };

@@ -3,6 +3,7 @@
 #include "RGB_Material.h"
 #include <tuple>
 
+#include <algorithm>
 #include <cmath>
 
 
@@ -73,7 +74,7 @@ std::tuple<triangle3*, int> get_triangles()
     triangles[10] = triangle3(left_down_front, right_down_front, left_down_back);
     triangles[11] = triangle3(left_down_front, right_down_front, right_down_back);
 
-    RGB_Material material = RGB_Material(color3(1, 0.5, 0.3), color3(0, 1, 1), color3(1,1,1), 32);
+    RGB_Material material = RGB_Material(color3(0, 1, 1), 0.1, 0.5, 0.5, 1);
 
     for (int index = 0; index < triangle_count; index++)
     {
@@ -86,10 +87,12 @@ std::tuple<triangle3*, int> get_triangles()
 
 color3 calculate_light(Intersection* intersection, point3 light_source, ray raymond)
 {
+    RGB_Material material = intersection->_material;
+
     color3 source_light(1, 1, 1);
     color3 light_ambiente(0.15, 0.15, 0.15);
 
-    color3 ambiente_component = light_ambiente * intersection->_material._ambiente;
+    color3 ambiente_component = light_ambiente * material._ambiente * material._object_color;
   
     vector3 normal;
 
@@ -106,14 +109,17 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
     }
     double lightxnormal = dot_product(normal, light_direction);
 
-    color3 diffuse_component = source_light * intersection->_material._diffuse * lightxnormal;
+    color3 diffuse_component = source_light * material._diffuse * material._object_color * lightxnormal;
 
 
-    double norm_factor = (intersection->_material._shinyness + 2) / (2 * M_PI);
-    vector3 reflection_direction = unit_vector(-light_source - (2 * dot_product(-light_source, normal) * normal));
+    double norm_factor = (material._shinyness + 2) / (2 * M_PI);
+    norm_factor = 1 / M_PI;
+    vector3 reflection_direction = unit_vector((2 * dot_product(light_source, normal) * normal) - light_source);
+    double reflectionxray = dot_product(reflection_direction, -raymond.direction());
+    if (reflectionxray < 0) { reflectionxray = 0; }
     color3 specular_component = source_light * norm_factor 
-        * intersection->_material._specular 
-        * pow(dot_product(reflection_direction, -raymond.direction()), intersection->_material._shinyness);
+        * material._specular 
+        * pow(reflectionxray, material._shinyness);
     
     color3 light_color = ambiente_component + diffuse_component + specular_component;
 
@@ -145,7 +151,7 @@ image_data* trace_rays()
     
     unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
 
-    point3 light_source = vector3(3,3,-3);
+    point3 light_source = vector3(4,1,-3);
 
     triangle3* triangles;
     size_t triangles_size;
