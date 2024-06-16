@@ -5,83 +5,12 @@
 
 #include <algorithm>
 #include <cmath>
-
-
-double ray_sphere_intersetion(const point3& center, double radius, const ray& raymond) 
-{
-    vector3 oc = center - raymond.origin();
-    double a = dot_product(raymond.direction(), raymond.direction());
-    double b = -2.0 * dot_product(raymond.direction(), oc);
-    double c = dot_product(oc, oc) - radius * radius;
-    double discriminant = b * b - 4 * a * c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    }
-    return (-b + sqrt(discriminant)) / (2.0 * a);
-}
-
-
-vector3 sphere_color(const ray& raymond) 
-{   
-    double t = ray_sphere_intersetion(point3(0, 0, -1), 0.5, raymond);
-    if (t > 0.0) {
-        vector3 N = unit_vector(raymond.at(t) - vector3(0, 0, -1));
-        return 0.5 * color3(N.x() + 1, N.y() + 1, N.z() + 1);
-    }
-
-    vector3 unit_direction = unit_vector(raymond.direction());
-    double a = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - a) * color3(1.0, 1.0, 1.0) + a * color3(0.5, 0.7, 1.0);
-}
+#include "example_scene.h"
 
 
 std::tuple<triangle3*, int> get_triangles()
 {
-    //triangles in the scene
-    int triangle_count = 12;
-
-    //examplecube
-
-    //front side
-    point3 left_front = point3(-4, -1, -2);
-    point3 right_front = point3(-2, -1, -2);
-    point3 left_down_front = point3(-4, -3, -2);
-    point3 right_down_front = point3(-2, -3, -2);
-    //backside
-    point3 left_back = point3(-4, -1, -4);
-    point3 right_back = point3(-2, -1, -4);
-    point3 left_down_back = point3(-4, -3, -4);
-    point3 right_down_back = point3(-2, -3, -4);
-
-    triangle3* triangles = new triangle3[triangle_count];
-    //front
-    triangles[0] = triangle3(left_front, right_front, left_down_front);
-    triangles[1] = triangle3(right_down_front, right_front, left_down_front);
-    //back
-    triangles[2] = triangle3(left_back, right_back, left_down_back);
-    triangles[3] = triangle3(right_down_back, right_back, left_down_back);
-    //left
-    triangles[4] = triangle3(left_front, left_back, left_down_front);
-    triangles[5] = triangle3(left_down_back, left_back, left_down_front);
-    //right
-    triangles[6] = triangle3(right_front, right_back, right_down_front);
-    triangles[7] = triangle3(right_down_back, right_back, right_down_front);
-    //top
-    triangles[8] = triangle3(left_front, right_back, left_back);
-    triangles[9] = triangle3(left_front, right_front, right_back);
-    //bottom
-    triangles[10] = triangle3(left_down_front, right_down_front, left_down_back);
-    triangles[11] = triangle3(left_down_front, right_down_front, right_down_back);
-
-    RGB_Material material = RGB_Material(color3(0, 1, 1), 0.1, 0.5, 0.5, 1);
-
-    for (int index = 0; index < triangle_count; index++)
-    {
-        triangles[index].setMaterial(material);
-    }
-
-    return std::make_tuple(triangles, triangle_count);
+    return build_scene();
 }
 
 
@@ -99,6 +28,8 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
     //points towards the lightsource
     vector3 light_direction = unit_vector(light_source - intersection->_intersection_point);
 
+
+
     if (dot_product(intersection->_normal, light_direction) < 0)
     {
         normal = -intersection->_normal;
@@ -114,7 +45,7 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
 
     double norm_factor = (material._shinyness + 2) / (2 * M_PI);
     norm_factor = 1 / M_PI;
-    vector3 reflection_direction = unit_vector((2 * dot_product(light_source, normal) * normal) - light_source);
+    vector3 reflection_direction = unit_vector((2 * dot_product(light_direction, normal) * normal) - light_direction);
     double reflectionxray = dot_product(reflection_direction, -raymond.direction());
     if (reflectionxray < 0) { reflectionxray = 0; }
     color3 specular_component = source_light * norm_factor 
@@ -123,7 +54,7 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
     
     color3 light_color = ambiente_component + diffuse_component + specular_component;
 
-    return specular_component;
+    return diffuse_component;
 }
 
 
@@ -151,7 +82,7 @@ image_data* trace_rays()
     
     unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
 
-    point3 light_source = vector3(4,1,-3);
+    point3 light_source = vector3(4,1,-5);
 
     triangle3* triangles;
     size_t triangles_size;
