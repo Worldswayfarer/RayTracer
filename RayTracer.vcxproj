@@ -132,6 +132,8 @@
   <ItemGroup>
     <ClCompile Include="example_scene.cpp" />
     <ClCompile Include="image.cpp" />
+    <ClCompile Include="closest_intersection.cpp" />
+    <ClCompile Include="intersection_test.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="printer.cpp" />
     <ClCompile Include="raytracer.cpp" />
@@ -140,10 +142,12 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="closest_intersection.h" />
     <ClInclude Include="example_scene.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="image_data.h" />
     <ClInclude Include="Intersection.h" />
+    <ClInclude Include="intersection_test.h" />
     <ClInclude Include="object_loader.h" />
     <ClInclude Include="printer.h" />
     <ClInclude Include="ray.h" />

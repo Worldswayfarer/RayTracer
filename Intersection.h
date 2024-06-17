@@ -1,5 +1,13 @@
 #pragma once
 
+#ifndef INTERSECTION
+#define INTERSECTION
+#endif
+
+#include "triangle3.h"
+#include "ray.h"
+#include "vector3.h"
+
 struct Intersection {
 public:
 

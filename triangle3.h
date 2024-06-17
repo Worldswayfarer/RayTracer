@@ -5,7 +5,7 @@
 
 #include "ray.h"
 #include "RGB_Material.h"
-#include <limits>
+
 #include "Intersection.h"
 
 class triangle3 
@@ -23,15 +23,9 @@ public:
 
     void setMaterial(RGB_Material material);
 
-
-    //Muller-Trumbore intersection
-    Intersection* ray_triangle_intersection(ray& raymond);
-
-
 private:
     point3 _a;
     point3 _b;
     point3 _c;  
 };
-
 #endif

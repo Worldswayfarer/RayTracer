@@ -7,7 +7,7 @@ image_data* create_image()
     const int image_width = 1920;
     const int image_height = 1080;
     
-    unsigned char* image_pixels = new unsigned char[(double)image_width * image_height * 3];
+    unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
     
 
     for (int y = 0; y < image_height; y++) {
@@ -25,6 +25,6 @@ image_data* create_image()
         }
     }
 
-    struct image_data img(image_width, image_height, 3, image_pixels);
-    return &img;
+    struct image_data* img = new image_data(image_width, image_height, 3, image_pixels);
+    return img;
 }

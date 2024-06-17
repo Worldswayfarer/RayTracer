@@ -1,3 +1,4 @@
+#pragma once
 #include "raytracer.h"
 #include "triangle3.h"
 #include "RGB_Material.h"
@@ -6,7 +7,8 @@
 #include <algorithm>
 #include <cmath>
 #include "example_scene.h"
-
+#include "Intersection.h"
+#include "closest_intersection.h"
 
 std::tuple<triangle3*, int> get_triangles()
 {
@@ -102,36 +104,9 @@ image_data* trace_rays()
             double a = 0.5 * (unit_direction.y() + 1.0);
             color3 pixel_color = (1.0 - a) * color3(1.0, 1.0, 1.0) + a * color3(0.5, 0.7, 1.0);
 
-            Intersection* closest_intersection = NULL;
-
-            for (int n = 0; n < triangles_size; n++)
-            {
-                //closest_intersection points to intersection, but the intersection gets rewritten every time
-                Intersection* intersection = triangles[n].ray_triangle_intersection(raymond);
-                if (!intersection)
-                {
-                    continue;
-                }
-                double ray_t = intersection->_ray_t;
-                if (ray_t < 0) { continue; }
-
-                vector3 distance_ray_point = raymond.direction() * ray_t;
-                // intersection is behind the image
-                if (distance_ray_point.length() < focal_length) { continue; }
-
-                
-                if (!closest_intersection)
-                {
-                    closest_intersection = intersection;
-                    continue;
-                }
-
-                //determine which of the 2 points is closer to the image
-                if ((intersection->_intersection_point - pixel_point).length() < (closest_intersection->_intersection_point - pixel_point).length())
-                {
-                    closest_intersection = intersection;
-                }
-            }
+            //The intersection tests
+            Intersection* closest_intersection = get_closest_intersection(focal_length, pixel_point, triangles_size,
+                triangles, raymond);
 
             // change the pixel_color to red if an intersection occured
             if (closest_intersection != NULL)
@@ -144,6 +119,6 @@ image_data* trace_rays()
             image_pixels[3 * (y * image_width + x) + 2] = unsigned char(pixel_color.z() * 255.999);
         }
     }
-    struct image_data img(image_width, image_height, 3, image_pixels);
-    return &img;
+    image_data* img = new image_data(image_width, image_height, 3, image_pixels);
+    return img;
 }
