@@ -9,14 +9,15 @@
 #include "example_scene.h"
 #include "Intersection.h"
 #include "closest_intersection.h"
+#include <vector>
 
-std::tuple<triangle3*, int> get_triangles()
+std::tuple<std::vector<triangle3>*, int> get_triangles()
 {
-    return build_scene();
+    return build_scene(5);
 }
 
 
-color3 calculate_light(Intersection* intersection, point3 light_source, ray raymond)
+color3 calculate_light(size_t triangles_size, std::vector<triangle3>* triangles, Intersection* intersection, point3 light_source, ray raymond)
 {
     RGB_Material material = intersection->_material;
 
@@ -29,8 +30,15 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
 
     //points towards the lightsource
     vector3 light_direction = unit_vector(light_source - intersection->_intersection_point);
+    ray shadow_ray = ray(intersection->_intersection_point, light_direction);
 
-
+    
+    //Test if the triangle is illuminated
+    Intersection*  shadow_intersection = get_closest_intersection(triangles_size, triangles, shadow_ray);
+    if (shadow_intersection != nullptr)
+    {
+        return ambiente_component;
+    }
 
     if (dot_product(intersection->_normal, light_direction) < 0)
     {
@@ -56,7 +64,7 @@ color3 calculate_light(Intersection* intersection, point3 light_source, ray raym
     
     color3 light_color = ambiente_component + diffuse_component + specular_component;
 
-    return diffuse_component;
+    return light_color;
 }
 
 
@@ -68,6 +76,10 @@ image_data* trace_rays()
     double aspect_ratio = 16.0 / 9.0;
     int image_width = 600;
     point3 camera_center = point3(0, 0, 0);
+
+    //light
+    point3 light_source = vector3(0, 3, -1);
+
 
     int image_height = (int)(image_width / aspect_ratio);
 
@@ -84,9 +96,9 @@ image_data* trace_rays()
     
     unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
 
-    point3 light_source = vector3(4,1,-5);
 
-    triangle3* triangles;
+
+    std::vector<triangle3>* triangles;
     size_t triangles_size;
     std::tie(triangles, triangles_size) = get_triangles();
 
@@ -111,7 +123,7 @@ image_data* trace_rays()
             // change the pixel_color to red if an intersection occured
             if (closest_intersection != NULL)
             {
-                pixel_color = calculate_light(closest_intersection, light_source, raymond);
+                pixel_color = calculate_light(triangles_size, triangles, closest_intersection, light_source, raymond);
             }
             delete closest_intersection;
             image_pixels[3 * (y * image_width + x)] = unsigned char(pixel_color.x() * 255.999);

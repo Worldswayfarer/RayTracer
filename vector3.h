@@ -47,6 +47,23 @@ public:
     double length_squared() const {
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
+
+    bool operator==(const vector3& v)
+    {
+        if (e[0] != v.e[0])
+        {
+            return false;
+        }
+        if (e[1] != v.e[1])
+        {
+            return false;
+        }
+        if (e[2] != v.e[2])
+        {
+            return false;
+        }
+        return true;
+    }
 };
 
 // point3 is just an alias for vec3, but useful for geometric clarity in the code.
