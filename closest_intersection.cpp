@@ -4,7 +4,7 @@
 Intersection* get_closest_intersection(double focal_length, point3 pixel_point,
     size_t triangles_size, std::vector<triangle3>* triangles, ray& raymond)
 {
-    constexpr double epsilon = std::numeric_limits<double>::epsilon();
+    constexpr double epsilon = 0.00001;
     Intersection* closest_intersection = nullptr;
     for (int n = 0; n < triangles_size; n++)
     {
@@ -14,10 +14,8 @@ Intersection* get_closest_intersection(double focal_length, point3 pixel_point,
         {
             continue;
         }
-        double ray_t = intersection->_ray_t;
-        if (ray_t < 0) { continue; }
 
-        vector3 distance_ray_point = raymond.direction() * ray_t;
+        vector3 distance_ray_point = raymond.direction() * intersection->_ray_t;
         // intersection is behind the image
         if (distance_ray_point.length() < focal_length) { continue; }
 
@@ -46,29 +44,9 @@ Intersection* get_closest_intersection(size_t triangles_size, std::vector<triang
     {
         //closest_intersection points to intersection, but the intersection gets rewritten every time
         Intersection* intersection = ray_triangle_intersection(&(*triangles)[n], raymond);
-        if (!intersection)
+        if (intersection)
         {
-            continue;
-        }
-        double ray_t = intersection->_ray_t;
-        if (ray_t < 0) { continue; }
-
-        vector3 distance_ray_point = raymond.direction() * ray_t;
-        // intersection is at the origin triangle
-        if (intersection->_intersection_point == raymond.origin()) { continue; }
-
-
-        if (!closest_intersection)
-        {
-            closest_intersection = intersection;
-            continue;
-        }
-
-        //determine which of the 2 points is closer to the image
-        if ((intersection->_intersection_point - raymond.origin()).length() + epsilon
-            < (closest_intersection->_intersection_point - raymond.origin()).length())
-        {
-            closest_intersection = intersection;
+            return intersection;
         }
     }
     return closest_intersection;

@@ -1,10 +1,10 @@
 #include <limits>
 #include "intersection_test.h"
 
-//Muller-Trumbore intersection
+//Möller-Trumbore intersection
 Intersection* ray_triangle_intersection(triangle3* triangle, ray& raymond)
 {
-    constexpr double epsilon = std::numeric_limits<double>::epsilon();
+    constexpr double epsilon = 0.00001;
 
     vector3 edge1 = triangle->b() - triangle->a();
     vector3 edge2 = triangle->c() - triangle->a();
@@ -13,20 +13,20 @@ Intersection* ray_triangle_intersection(triangle3* triangle, ray& raymond)
     double det = dot_product(edge1, ray_cross_e2);
 
     if (det > -epsilon && det < epsilon)
-        return {};    // Ray is parallel.
+        return nullptr;    // Ray is parallel.
 
     double inv_det = 1.0 / det;
     vector3 s = raymond.origin() - triangle->a();
     double u = inv_det * dot_product(s, ray_cross_e2);
 
     if (u < 0 || u > 1)
-        return {}; // No intersection.
+        return nullptr; // No intersection.
 
     vector3 s_cross_e1 = cross_product(s, edge1);
     double v = inv_det * dot_product(raymond.direction(), s_cross_e1);
 
     if (v < 0 || u + v > 1)
-        return {}; // No intersection.
+        return nullptr; // No intersection.
 
     // At this stage we can compute t to find out where the intersection point is on the line.
     double t = inv_det * dot_product(edge2, s_cross_e1);
@@ -38,5 +38,5 @@ Intersection* ray_triangle_intersection(triangle3* triangle, ray& raymond)
         return  inter;
     }
     else // Intersection is in the "wrong" direction.
-        return {};
+        return nullptr;
 }

@@ -142,6 +142,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoundingVolumeTree.h" />
     <ClInclude Include="closest_intersection.h" />
     <ClInclude Include="example_scene.h" />
     <ClInclude Include="image.h" />

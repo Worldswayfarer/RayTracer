@@ -13,7 +13,7 @@
 
 std::tuple<std::vector<triangle3>*, int> get_triangles()
 {
-    return build_scene(5);
+    return build_scene(3);
 }
 
 
@@ -39,7 +39,7 @@ color3 calculate_light(size_t triangles_size, std::vector<triangle3>* triangles,
     {
         return ambiente_component;
     }
-
+    
     if (dot_product(intersection->_normal, light_direction) < 0)
     {
         normal = -intersection->_normal;
@@ -48,9 +48,10 @@ color3 calculate_light(size_t triangles_size, std::vector<triangle3>* triangles,
     {
         normal = intersection->_normal;
     }
+    
     double lightxnormal = dot_product(normal, light_direction);
 
-    color3 diffuse_component = source_light * material._diffuse * material._object_color * lightxnormal;
+    color3 diffuse_component = source_light * material._object_color * material._diffuse * lightxnormal;
 
 
     double norm_factor = (material._shinyness + 2) / (2 * M_PI);
@@ -78,7 +79,7 @@ image_data* trace_rays()
     point3 camera_center = point3(0, 0, 0);
 
     //light
-    point3 light_source = vector3(0, 3, -1);
+    point3 light_source = vector3(3, 0, 1);
 
 
     int image_height = (int)(image_width / aspect_ratio);
