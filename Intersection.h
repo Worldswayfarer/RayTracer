@@ -5,6 +5,7 @@
 #endif
 
 #include "triangle3.h"
+#include "AABB.h"
 #include "ray.h"
 #include "vector3.h"
 

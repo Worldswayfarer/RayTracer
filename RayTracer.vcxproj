@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Construct_BVH.cpp" />
     <ClCompile Include="example_scene.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="closest_intersection.cpp" />
@@ -142,9 +143,12 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="BoundingVolumeTree.h" />
     <ClInclude Include="closest_intersection.h" />
+    <ClInclude Include="Construct_BVH.h" />
     <ClInclude Include="example_scene.h" />
+    <ClInclude Include="global_values.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="image_data.h" />
     <ClInclude Include="Intersection.h" />

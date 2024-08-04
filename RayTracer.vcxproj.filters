@@ -45,6 +45,9 @@
     <ClCompile Include="intersection_test.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Construct_BVH.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="image.h">
@@ -93,6 +96,15 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="BoundingVolumeTree.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="global_values.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Construct_BVH.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

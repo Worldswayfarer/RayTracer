@@ -3,6 +3,9 @@
 #include "triangle3.h"
 #include "RGB_Material.h"
 #include <tuple>
+#include <ctime>
+#include <chrono>
+#include <iostream>
 
 #include <algorithm>
 #include <cmath>
@@ -98,10 +101,22 @@ image_data* trace_rays()
     unsigned char* image_pixels = new unsigned char[(size_t)(image_width * image_height * 3)];
 
 
-
+    //Getting triangles
+    auto start = std::chrono::system_clock::now();
+    
     std::vector<triangle3>* triangles;
     size_t triangles_size;
     std::tie(triangles, triangles_size) = get_triangles();
+
+    auto end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    std::cout << "Building scene: " << elapsed_seconds.count() << "s"
+        << std::endl;
+
+    start = std::chrono::system_clock::now();
 
     for (int y = 0; y < image_height; y++)
     {
@@ -109,7 +124,7 @@ image_data* trace_rays()
         {
             point3 pixel_point = start_point + (x * viewport_delta_x) + (y * viewport_delta_y);
             vector3 ray_direction = unit_vector(pixel_point - camera_center);
-            ray raymond(camera_center, ray_direction);
+            ray raymond(pixel_point, ray_direction);
 
             
             // background color
@@ -118,7 +133,7 @@ image_data* trace_rays()
             color3 pixel_color = (1.0 - a) * color3(1.0, 1.0, 1.0) + a * color3(0.5, 0.7, 1.0);
 
             //The intersection tests
-            Intersection* closest_intersection = get_closest_intersection(focal_length, pixel_point, triangles_size,
+            Intersection* closest_intersection = get_closest_intersection(triangles_size,
                 triangles, raymond);
 
             // change the pixel_color to red if an intersection occured
@@ -133,5 +148,15 @@ image_data* trace_rays()
         }
     }
     image_data* img = new image_data(image_width, image_height, 3, image_pixels);
+
+
+    end = std::chrono::system_clock::now();
+
+    elapsed_seconds = end - start;
+    end_time = std::chrono::system_clock::to_time_t(end);
+
+    std::cout << "Rendering scene: " << elapsed_seconds.count() << "s"
+        << std::endl;
+
     return img;
 }
