@@ -1,6 +1,6 @@
 #pragma once
 #include "AABB.h"
-#include "triangle3.h"
+#include "../Data/triangle3.h"
 
 struct BVHNode 
 {

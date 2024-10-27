@@ -1,6 +1,6 @@
 #include "closest_intersection.h"
 #include "global_values.h"
-#include "BoundingVolumeTree.h"
+#include "BVH/BoundingVolumeTree.h"
 
 Intersection* get_closest_intersection(size_t triangles_size, std::vector<triangle3>* triangles, ray& raymond)
 {

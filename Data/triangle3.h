@@ -6,7 +6,7 @@
 #include "ray.h"
 #include "RGB_Material.h"
 
-#include "Intersection.h"
+#include "../Intersection.h"
 
 class triangle3 
 {

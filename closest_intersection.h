@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Intersection.h"
-#include "triangle3.h"
-#include "ray.h"
+#include "Data/triangle3.h"
+#include "Data/ray.h"
 #include "intersection_test.h"
 #include <vector>
 #include <limits>
-#include "BoundingVolumeTree.h"
+#include "BVH/BoundingVolumeTree.h"
 
 //Visibility test
 Intersection* get_closest_intersection(size_t triangles_size, std::vector<triangle3>* triangles, ray& raymond);

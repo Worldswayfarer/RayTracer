@@ -1,7 +1,7 @@
 #pragma once
 #include "raytracer.h"
-#include "triangle3.h"
-#include "RGB_Material.h"
+#include "Data/triangle3.h"
+#include "Data/RGB_Material.h"
 #include <tuple>
 #include <ctime>
 #include <chrono>
@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include "example_scene.h"
+#include "Scene/example_scene.h"
 #include "Intersection.h"
 #include "closest_intersection.h"
 #include <vector>

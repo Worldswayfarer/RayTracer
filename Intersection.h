@@ -4,10 +4,10 @@
 #define INTERSECTION
 #endif
 
-#include "triangle3.h"
-#include "AABB.h"
-#include "ray.h"
-#include "vector3.h"
+#include "Data/triangle3.h"
+#include "BVH/AABB.h"
+#include "Data/ray.h"
+#include "Data/vector3.h"
 
 struct Intersection {
 public:

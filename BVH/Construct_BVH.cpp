@@ -2,6 +2,19 @@
 #include <vector>
 #include <algorithm>
 
+bool compareX(triangle3& a, triangle3& b)
+{
+    return a.center().x() < b.center().x();
+}
+bool compareY(triangle3& a, triangle3& b)
+{
+    return a.center().y() < b.center().y();
+}
+bool compareZ(triangle3& a, triangle3& b)
+{
+    return a.center().z() < b.center().z();
+}
+
 //sort primitives once at the start
 BVHNode* construct_BVH(std::vector<triangle3>* primitives)
 {
@@ -51,15 +64,3 @@ AABB* construct_AABB()
     return nullptr;
 }
 
-bool compareX(triangle3& a, triangle3& b)
-{
-    return a.center().x() < b.center().x();
-}
-bool compareY(triangle3& a, triangle3& b)
-{
-    return a.center().y() < b.center().y();
-}
-bool compareZ(triangle3& a, triangle3& b)
-{
-    return a.center().z() < b.center().z();
-}

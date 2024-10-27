@@ -1,8 +1,7 @@
 
 
-#include "image.h"
-#include "printer.h"
-#include "image_data.h"
+#include "Output/image.h"
+#include "Output/printer.h"
 #include "window.h"
 #include "raytracer.h"
 #undef main

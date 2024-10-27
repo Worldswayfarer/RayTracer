@@ -1,4 +1,5 @@
-#include "image_data.h"
+#pragma once
+#include "Output/image_data.h"
 #include <SDL.h>
 #include <stdio.h>
 

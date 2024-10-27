@@ -1,7 +1,7 @@
 #pragma once
 
-#include "triangle3.h"
-#include "RGB_Material.h"
+#include "../Data/triangle3.h"
+#include "../Data/RGB_Material.h"
 #include <tuple>
 #include <vector>
 #include <cstdlib>
