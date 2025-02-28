@@ -48,7 +48,26 @@ std::tuple<std::vector<triangle3>*, int> build_cube(point3 center, size_t size, 
     return std::make_tuple(triangles, triangle_count);
 }
 
+vector3 random_direction()
+{
+    return vector3(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1 - -1))),
+        static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1 - -1))),
+        static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1 - -1))));
+}
 
+std::tuple<std::vector<triangle3>*, int> build_triangles(point3 center, size_t size, RGB_Material material) {
+    std::vector<triangle3>* triangles = new std::vector<triangle3>;
+    int triangle_count = 1;
+
+
+
+    point3 left = center + random_direction();
+    point3 right = center + random_direction();
+    triangles->push_back(triangle3(center, left, right));
+    (*triangles)[0].setMaterial(material);
+    return std::make_tuple(triangles, triangle_count);
+
+}
 
 std::tuple<std::vector<triangle3>*, int> build_scene(size_t cube_count)
 {
@@ -61,6 +80,7 @@ std::tuple<std::vector<triangle3>*, int> build_scene(size_t cube_count)
     {
         std::vector<triangle3>* add;
         size_t count;
+        
         RGB_Material material = RGB_Material(color3(static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
             static_cast <float> (rand()) / static_cast <float> (RAND_MAX) ,
             static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
@@ -69,6 +89,19 @@ std::tuple<std::vector<triangle3>*, int> build_scene(size_t cube_count)
             -3 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (3 - -3))),
             -8 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (-3 - -8)))),
             rand() % 3 + 1, material);
+            
+        /*
+        RGB_Material material = RGB_Material(color3(0.5, 1, 0.5), 1, 0.5, 0.5, 1);
+        std::tie(add, count) = build_cube(point3(-3, -3, -6), 2, material);
+        triangles->insert(triangles->end(), add->begin(), add->end());
+        triangle_count += count;
+        point3 center = point3(-4 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (4 - -4))),
+            -3 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (3 - -3))),
+            -8 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (-3 - -8))));
+            RGB_Material material = RGB_Material(color3(0.5, 1, 0.5), 1, 0.5, 0.5, 1);
+        std::tie(add, count) = build_triangles(center, 2, material);
+        */
+        
         triangles->insert(triangles->end(), add->begin(), add->end());
         triangle_count += count;
     }

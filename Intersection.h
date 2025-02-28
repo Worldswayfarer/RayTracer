@@ -8,6 +8,7 @@
 #include "BVH/AABB.h"
 #include "Data/ray.h"
 #include "Data/vector3.h"
+#include "algorithm"
 
 struct Intersection {
 public:

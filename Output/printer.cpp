@@ -8,8 +8,8 @@
 
 
 
-int print_image(struct image_data* img)
+int print_image(image_data* img)
 {
-    stbi_write_png("image.png", (*img).image_width, (*img).image_height, (*img).image_channels, (*img).image_pixels, (*img).image_width * (*img).image_channels);
+    stbi_write_png("Output/image.png", (*img).image_width, (*img).image_height, (*img).image_channels, (*img).image_pixels->data(), (*img).image_width * (*img).image_channels);
     return 0;
 }

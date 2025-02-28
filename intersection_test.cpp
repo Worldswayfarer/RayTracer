@@ -40,6 +40,7 @@ Intersection* ray_triangle_intersection(triangle3* triangle, ray& raymond)
         return nullptr;
 }
 
+/*
 double ray_aabb_intersection(AABB* box, ray& raymond)
 {
     vector3 inverse_direction = 1 / raymond.direction();
@@ -49,14 +50,32 @@ double ray_aabb_intersection(AABB* box, ray& raymond)
     vector3 t1 = minimum(t_min, t_max);
     vector3 t2 = maximum(t_min, t_max);
 
-    double t_near = t1[0] > t1[1] ? t1[0] : t1[1];
-    t_near = t1[1] > t1[2] ? t1[1] : t1[2];
-    double t_far = t1[0] < t1[1] ? t1[0] : t1[1];
-    t_far = t1[1] < t1[2] ? t1[1] : t1[2];
+    double t_near = std::max(t1[0], std::max(t1[1], t1[2]));
+    double t_far = std::min(t2[0], std::min(t2[1], t2[2]));
 
     if (t_near <= t_far and t_far >= 0 and t_near > _epsilon)
     {
         return  t_near;
     }
-    return 0;
+    return -1;
+}
+*/
+
+double ray_aabb_intersection(AABB* box, ray& raymond) {
+    float tmin = std::numeric_limits<float>::min(), tmax = std::numeric_limits<float>::max();
+
+    const vector3 origin = raymond.origin();
+    for (int i = 0; i < 3; i++) {
+        float invD = 1.0f / (raymond.direction()[i]);
+        float t1 = (box->_min[i] - (origin[i])) * invD;
+        float t2 = (box->_max[i] - (origin[i])) * invD;
+
+        if (invD < 0.0f) std::swap(t1, t2);
+
+        tmin = std::max(tmin, t1);
+        tmax = std::min(tmax, t2);
+
+        if (tmax < tmin) return -1;
+    }
+    return tmin;
 }

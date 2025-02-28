@@ -1,6 +1,7 @@
 #include "closest_intersection.h"
 #include "global_values.h"
 #include "BVH/BoundingVolumeTree.h"
+#include <iostream>
 
 Intersection* get_closest_intersection(size_t triangles_size, std::vector<triangle3>* triangles, ray& raymond)
 {
@@ -37,26 +38,41 @@ Intersection* get_BVH_closest_intersection(BVHNode* current_node, ray& raymond)
 {
     if (current_node->primitive != nullptr)
     {
-        return ray_triangle_intersection(current_node->primitive, raymond);
+        auto tmp = ray_triangle_intersection(current_node->primitive, raymond);
+        return tmp;
     }
 
     double left_t = ray_aabb_intersection(current_node->left_child->box, raymond);
     double right_t = ray_aabb_intersection(current_node->right_child->box, raymond);
 
 
-    Intersection* left_intersection = nullptr;
-    Intersection* right_intersection = nullptr;
-    if(left_t != 0 and left_t <= right_t)
+    if(left_t != -1 and left_t < right_t)
     {
-        left_intersection = get_BVH_closest_intersection(current_node->left_child, raymond);
+        return get_BVH_closest_intersection(current_node->left_child, raymond);
     }
-    if (left_intersection != nullptr)
-    {
-        return left_intersection;
-    }
-    if(right_t != 0)
+    if(right_t != -1 and right_t < left_t)
     { 
-        return right_intersection = get_BVH_closest_intersection(current_node->right_child, raymond);
+        return get_BVH_closest_intersection(current_node->right_child, raymond);
     }
+    /*
+    if(left_t = right_t and right_t != -1 and left_t != -1) {
+        Intersection* left = get_BVH_closest_intersection(current_node->left_child, raymond);
+        Intersection* right = get_BVH_closest_intersection(current_node->right_child, raymond);
+        if (left != nullptr and right != nullptr )
+        {
+            if (left->_ray_t < right->_ray_t) {
+                return left;
+            }
+            if (left->_ray_t > right->_ray_t) {
+                return right;
+            }
+            
+        }
+        if (left != nullptr)
+        {
+            return left;
+        }
+        return right;
+    }*/
     return nullptr;
 }
