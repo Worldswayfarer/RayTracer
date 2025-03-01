@@ -85,9 +85,9 @@ std::tuple<std::vector<triangle3>*, int> build_scene(size_t cube_count)
             static_cast <float> (rand()) / static_cast <float> (RAND_MAX) ,
             static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
             1, 0.5, 0.5, 1);
-        std::tie(add, count) = build_cube(point3(-4 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (4 - -4))),
-            -3 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (3 - -3))),
-            -8 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (-3 - -8)))),
+        std::tie(add, count) = build_cube(point3(-4 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (8 - -8))),
+            -3 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (6 - -6))),
+            -8 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (-3 - -10)))),
             rand() % 3 + 1, material);
             
         /*

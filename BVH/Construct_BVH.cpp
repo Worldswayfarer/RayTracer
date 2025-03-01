@@ -5,7 +5,7 @@
 #include <cmath>
 
 
-const int number_of_buckets = 2;
+const int number_of_buckets = 4;
 
 bool compareX(triangle3& a, triangle3& b)
 {
@@ -23,7 +23,7 @@ bool compareZ(triangle3& a, triangle3& b)
 AABB* construct_AABB(const std::vector<triangle3>* primitives) {
     vector3 max = { std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest() };
     vector3 min = { std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() };
-    for (const triangle3 obj : *primitives) {
+    for (const triangle3 &obj : *primitives) {
         min = minimum(min, obj.a());
         max = maximum(max, obj.a());
         min = minimum(min, obj.b());
@@ -35,10 +35,29 @@ AABB* construct_AABB(const std::vector<triangle3>* primitives) {
     return box;
 }
 
+
 float compute_surface_area(const AABB* box) {
     vector3 d = { box->_max.x() - box->_min.x(), box->_max.y() - box->_min.y(), box->_max.z() - box->_min.z() };
     return 2 * (d.x() * d.y() + d.y() * d.z() + d.z() * d.x());
 }
+
+AABB* expand_AABB(AABB* target, AABB* other) {
+    target->_min = minimum(target->_min, other -> _min);
+    target->_max = maximum(target->_max, other->_max);
+    return target;
+}
+
+struct Bucket {
+    AABB bounds;
+    int count = 0;
+
+    Bucket() = default;
+};
+
+bool is_valid_AABB(AABB target) {
+    return (target._min[0] <= target._max[0]) && (target._min[1] <= target._max[1]) && (target._min[2] <= target._max[2]);
+}
+
 
 
 BVHNode* construct_node(BVHNode* parent, std::vector<triangle3>* primitives)
@@ -55,7 +74,7 @@ BVHNode* construct_node(BVHNode* parent, std::vector<triangle3>* primitives)
         parent_AABB = parent->box;
     }
     node->box = construct_AABB(primitives);
-    
+ 
     
     if (primitives->size() <= 1) {
         if (primitives->size() == 1)
@@ -66,54 +85,78 @@ BVHNode* construct_node(BVHNode* parent, std::vector<triangle3>* primitives)
         return NULL;
     }
     float bestCost = std::numeric_limits<float>::infinity();
-    size_t bestSplit = 1;
-    int bestAxis = 0;
+    float bestSplit = 0;
+    int bestAxis = -1;
     
-    size_t primitives_per_bucket = primitives->size() / number_of_buckets;
 
-    std::vector<triangle3>* left;
-    std::vector<triangle3>* right;
+    std::vector<triangle3>* left_prim = new std::vector<triangle3>;
+    std::vector<triangle3>* right_prim = new std::vector<triangle3>;
 
-    if (primitives->size() == 2) {
-        node->left_child = construct_node(node, new std::vector<triangle3>{ primitives->at(0) });
-        node->right_child = construct_node(node, new std::vector<triangle3>{ primitives->at(1) });
-        return node;
-    }
-
-    
     for (int axis = 0; axis < 3; axis++) {
-        std::sort(primitives->begin(), primitives->end(), [axis](const triangle3& a, const triangle3& b) {
-            return (axis == 0 ? a.center().x() : (axis == 1 ? a.center().y() : a.center().z())) <
-                (axis == 0 ? b.center().x() : (axis == 1 ? b.center().y() : b.center().z()));
-            });
-        for (int bucket = 1; bucket < number_of_buckets; bucket++) {
-            left = new std::vector<triangle3>(primitives->begin(), primitives->begin() + bucket * primitives_per_bucket);
-            right = new std::vector<triangle3>(primitives->begin() + bucket * primitives_per_bucket, primitives->end());
+       
+        float min_axis = parent_AABB->_min[axis], max_axis = parent_AABB->_max[axis];
+        if (max_axis == min_axis) continue; // Skip degenerate cases
 
-            AABB* leftBox = construct_AABB(left);
-            AABB* rightBox = construct_AABB(right);
-            float sahCost = 1 + (compute_surface_area(leftBox) )/ (compute_surface_area(parent_AABB))  * left->size() +
-                 (compute_surface_area(rightBox) ) /(compute_surface_area(parent_AABB))  * right->size();
+        // Initialize buckets
+        std::vector<Bucket> buckets(number_of_buckets);
+        float bucket_size = (max_axis - min_axis) / number_of_buckets;
 
+        // Assign primitives to buckets
+        for (const auto& p : *primitives) {
+            int b = std::min(number_of_buckets - 1, int((p.center()[axis] - min_axis) / bucket_size));
+            expand_AABB(&buckets[b].bounds, parent_AABB);
+            buckets[b].count++;
+        }
+        
+        AABB left;
+        AABB right;
+        int left_count = 0, right_count = primitives->size();
+        for (int bucket = 0; bucket < number_of_buckets; bucket++) {
+            
+            expand_AABB(&left, &buckets[bucket].bounds);
+            left_count += buckets[bucket].count;
+            right_count -= buckets[bucket].count;
+
+            //if (left_count == 0 || right_count == 0) continue;
+
+            right = AABB();
+            for (int j = bucket + 1; j < number_of_buckets; ++j) {
+                expand_AABB(&right, &buckets[bucket].bounds);
+            }
+
+            if (!is_valid_AABB(left) or !is_valid_AABB(right)){
+                continue;
+            }
+
+            float sahCost = 1 + (compute_surface_area(&left) )/ (compute_surface_area(parent_AABB))  * left_count +
+                 (compute_surface_area(&right) ) /(compute_surface_area(parent_AABB))  * right_count;
+
+            float split_position = min_axis + (bucket + 1) * bucket_size;
             if (sahCost < bestCost) {
                 bestCost = sahCost;
-                bestSplit = bucket;
+                bestSplit = split_position;
                 bestAxis = axis;
             }
         }
         
     }
 
-
-    std::sort(primitives->begin(), primitives->end(), [bestAxis](const triangle3& a, const triangle3& b) {
-        return (bestAxis == 0 ? a.center().x() : (bestAxis == 1 ? a.center().y() : a.center().z())) <
-            (bestAxis == 0 ? b.center().x() : (bestAxis == 1 ? b.center().y() : b.center().z()));
-        });
-    left = new std::vector<triangle3>(primitives->begin(), primitives->begin() + bestSplit * primitives_per_bucket);
-    right = new std::vector<triangle3>(primitives->begin() + bestSplit * primitives_per_bucket, primitives->end());
-
-    node->left_child = construct_node(node, left);
-    node->right_child = construct_node(node, right);
+    
+    for (const auto& p : *primitives) {
+        if (p.center()[bestAxis] < bestSplit) {
+            left_prim->push_back(p);  
+        }
+        else {
+            right_prim->push_back(p);
+        }
+    }
+    if (left_prim->size() == 0 || right_prim->size() == 0)
+    {
+        left_prim = new std::vector<triangle3>(primitives->begin(), primitives->begin() + primitives->size() / 2);
+        right_prim = new std::vector<triangle3>(primitives->begin() + primitives->size() / 2, primitives->end());
+    }
+    node->left_child = construct_node(node, left_prim);
+    node->right_child = construct_node(node, right_prim);
     return node;
 }
 

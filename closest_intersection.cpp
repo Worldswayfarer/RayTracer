@@ -45,34 +45,18 @@ Intersection* get_BVH_closest_intersection(BVHNode* current_node, ray& raymond)
     double left_t = ray_aabb_intersection(current_node->left_child->box, raymond);
     double right_t = ray_aabb_intersection(current_node->right_child->box, raymond);
 
-
-    if(left_t != -1 and left_t < right_t)
+    Intersection* hit = nullptr;
+    if(left_t != -1 and (right_t == -1 or left_t <= right_t))
     {
-        return get_BVH_closest_intersection(current_node->left_child, raymond);
+        hit = get_BVH_closest_intersection(current_node->left_child, raymond);
     }
-    if(right_t != -1 and right_t < left_t)
+    if (hit)
+    {
+        return hit;
+    }
+    if(right_t != -1)
     { 
-        return get_BVH_closest_intersection(current_node->right_child, raymond);
+        hit = get_BVH_closest_intersection(current_node->right_child, raymond);
     }
-    /*
-    if(left_t = right_t and right_t != -1 and left_t != -1) {
-        Intersection* left = get_BVH_closest_intersection(current_node->left_child, raymond);
-        Intersection* right = get_BVH_closest_intersection(current_node->right_child, raymond);
-        if (left != nullptr and right != nullptr )
-        {
-            if (left->_ray_t < right->_ray_t) {
-                return left;
-            }
-            if (left->_ray_t > right->_ray_t) {
-                return right;
-            }
-            
-        }
-        if (left != nullptr)
-        {
-            return left;
-        }
-        return right;
-    }*/
-    return nullptr;
+    return hit;
 }

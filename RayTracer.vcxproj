@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BVH\Construct_BVH.cpp" />
+    <ClCompile Include="ObjectLoader\loader.cpp" />
     <ClCompile Include="Scene\example_scene.cpp" />
     <ClCompile Include="Output\image.cpp" />
     <ClCompile Include="closest_intersection.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="BVH\BoundingVolumeTree.h" />
     <ClInclude Include="closest_intersection.h" />
     <ClInclude Include="BVH\Construct_BVH.h" />
+    <ClInclude Include="ObjectLoader\loader.h" />
     <ClInclude Include="Scene\example_scene.h" />
     <ClInclude Include="global_values.h" />
     <ClInclude Include="Output\image.h" />

@@ -14,13 +14,14 @@
 #include "Intersection.h"
 #include "closest_intersection.h"
 #include <vector>
-
+#include "ObjectLoader/loader.h"
 
 const bool useBVH = true;
+const bool useLoader = true;
 
 std::tuple<std::vector<triangle3>*, int> get_triangles()
 {
-    return build_scene(1);
+    return build_scene(10);
 }
 
 // Using Phong
@@ -84,7 +85,8 @@ color3 calculate_light(BVHNode* boundingVolumeHierarchy, size_t triangles_size, 
 
 
 image_data* trace_rays()
-{   
+{  
+
     //possible parameters
     double focal_length = 1.0;
     double viewport_ratio = 200;
@@ -115,9 +117,24 @@ image_data* trace_rays()
     //Getting triangles
     auto start = std::chrono::system_clock::now();
     
-    std::vector<triangle3>* triangles;
+    std::vector<triangle3>* triangles = new std::vector<triangle3>();
+    std::string obj_path = "C:/Users/Kenny/source/repos/RayTracer/ObjectLoader/stanford-bunny.obj";
     size_t triangles_size;
-    std::tie(triangles, triangles_size) = get_triangles();
+    if (useLoader) {
+        const bool success = simple_loadOBJ(obj_path, triangles);
+        if (success)
+        {
+            triangles_size = triangles->size();
+        }
+        else {
+            exit(1);
+        }
+        
+    }
+    else {
+        std::tie(triangles, triangles_size) = get_triangles();
+    }
+    
 
     BVHNode* boundingVolumeHierarchy = construct_BVH(triangles);
 

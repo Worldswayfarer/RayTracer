@@ -48,6 +48,9 @@
     <ClCompile Include="BVH\Construct_BVH.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectLoader\loader.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Output\image.h">
@@ -105,6 +108,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="BVH\Construct_BVH.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectLoader\loader.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
