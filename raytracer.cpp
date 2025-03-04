@@ -1,6 +1,7 @@
 #pragma once
 #include "raytracer.h"
 #include "Data/triangle3.h"
+#include "Data/sphere.h"
 #include "Data/RGB_Material.h"
 #include "BVH/Construct_BVH.h"
 #include <tuple>
@@ -17,12 +18,13 @@
 #include "ObjectLoader/loader.h"
 
 const bool useBVH = true;
-const bool useLoader = true;
+const bool useLoader = false;
 
 std::tuple<std::vector<triangle3>*, int> get_triangles()
 {
     return build_scene(10);
 }
+
 
 // Using Phong
 color3 calculate_light(BVHNode* boundingVolumeHierarchy, size_t triangles_size, std::vector<triangle3>* triangles, Intersection* intersection, point3 light_source, ray raymond)
@@ -39,7 +41,7 @@ color3 calculate_light(BVHNode* boundingVolumeHierarchy, size_t triangles_size, 
     //points towards the lightsource
     vector3 light_direction = unit_vector(light_source - intersection->_intersection_point);
     ray shadow_ray = ray(intersection->_intersection_point, light_direction);
-
+    double distance_to_light_source = (light_source - intersection->_intersection_point).length();
     
     Intersection* shadow_intersection = nullptr;
 
@@ -50,7 +52,7 @@ color3 calculate_light(BVHNode* boundingVolumeHierarchy, size_t triangles_size, 
     {
         shadow_intersection = get_closest_intersection(triangles_size, triangles, shadow_ray);
     }
-    if (shadow_intersection != nullptr)
+    if (shadow_intersection != nullptr and shadow_intersection->_ray_t < distance_to_light_source )
     {
         return ambiente_component;
     }
@@ -74,11 +76,11 @@ color3 calculate_light(BVHNode* boundingVolumeHierarchy, size_t triangles_size, 
     vector3 reflection_direction = unit_vector((2 * dot_product(light_direction, normal) * normal) - light_direction);
     double reflectionxray = dot_product(reflection_direction, -raymond.direction());
     if (reflectionxray < 0) { reflectionxray = 0; }
-    color3 specular_component = source_light * norm_factor 
+    color3 specular_component = source_light * norm_factor
         * material._specular 
         * pow(reflectionxray, material._shinyness);
     
-    color3 light_color = diffuse_component;
+    color3 light_color = ambiente_component + diffuse_component + specular_component;
 
     return light_color;
 }
@@ -90,12 +92,17 @@ image_data* trace_rays()
     //possible parameters
     double focal_length = 1.0;
     double viewport_ratio = 200;
+    if(useLoader)
+    {
+        viewport_ratio *= 50;
+    }
     double aspect_ratio = 16.0 / 9.0;
     int image_width = 1920;
-    point3 camera_center = point3(0, 0, 0);
+    point3 camera_center = point3(0, 0, 2);
 
     //light
-    point3 light_source = vector3(3, 2, -4);
+    point3 light_source = vector3(5, 5, 0);
+    sphere light_object(light_source, 0.05);
 
 
     int image_height = (int)(image_width / aspect_ratio);
@@ -108,7 +115,7 @@ image_data* trace_rays()
     vector3 viewport_delta_x = vector3(viewport_width/image_width, 0, 0);
     vector3 viewport_delta_y = vector3(0, -viewport_height / image_height, 0);
 
-    //assume the viewport is in positive z direction
+    //assume the viewport is in negative z direction
     point3 start_point = camera_center - vector3(0, 0, focal_length) - viewport_delta_x * (image_width / 2.0 - 0.5) - viewport_delta_y * (image_height / 2.0 - 0.5);
     
     size_t image_size = (size_t)(image_width * image_height * 3);
@@ -134,8 +141,15 @@ image_data* trace_rays()
     else {
         std::tie(triangles, triangles_size) = get_triangles();
     }
+    std::vector<triangle3>* plane;
+    size_t plane_size = 0;
+    std::tie(plane, plane_size) = build_plane(point3(0, -6, -50), 100);
+    if (plane)
+    {
+        triangles->insert(triangles->end(), plane->begin(), plane->end());
+        triangles_size += plane_size;
+    }
     
-
     BVHNode* boundingVolumeHierarchy = construct_BVH(triangles);
 
     auto end = std::chrono::system_clock::now();
@@ -173,13 +187,27 @@ image_data* trace_rays()
                 closest_intersection = get_closest_intersection(triangles_size,
                     triangles, raymond);
             }
-            
+
  
             // change the pixel_color to red if an intersection occured
             if (closest_intersection != NULL)
             {
                 pixel_color = calculate_light(boundingVolumeHierarchy, triangles_size, triangles, closest_intersection, light_source, raymond);
             }
+            
+            float sphere_t = light_object.ray_sphere_intersetion(raymond);
+            if (sphere_t > 0)
+            {
+                if (closest_intersection and closest_intersection->_ray_t > sphere_t)
+                {
+                    pixel_color = color3(1, 0, 0);
+                }
+                else {
+                    pixel_color = color3(1, 0, 0);
+                }
+                
+            }
+            
             
             image_pixels->at(3 * (y * image_width + x)) = unsigned char(pixel_color.x() * 255.999);
             image_pixels->at(3 * (y * image_width + x) + 1) = unsigned char(pixel_color.y() * 255.999);

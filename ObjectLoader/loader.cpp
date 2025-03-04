@@ -33,7 +33,8 @@ bool simple_loadOBJ(const std::string& filename, std::vector<triangle3>* triangl
         if (prefix == "v") { // Read vertex
             vector3 v;
             iss >> v.e[0] >> v.e[1] >> v.e[2];
-            v.e[2] -= 1;
+            v.e[1] -= 0.1; //move bunny down
+            v.e[2] -= 2; // move bunny away
             vertices.push_back(v);
         }
         else if (prefix == "f") { // Read face

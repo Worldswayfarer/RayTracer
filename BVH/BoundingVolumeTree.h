@@ -8,6 +8,7 @@ class BVHNode
 	triangle3* primitive = nullptr;
 	BVHNode* left_child = nullptr;
 	BVHNode* right_child = nullptr;
+	size_t primitive_count = 0;
 
 	BVHNode() {}
 	~BVHNode() {

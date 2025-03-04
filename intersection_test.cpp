@@ -1,7 +1,7 @@
-#include "intersection_test.h"
+﻿#include "intersection_test.h"
 #include "global_values.h"
 
-//M�ller-Trumbore intersection
+//Möller-Trumbore intersection
 Intersection* ray_triangle_intersection(triangle3* triangle, ray& raymond)
 {
 
@@ -66,6 +66,13 @@ double ray_aabb_intersection(AABB* box, ray& raymond) {
 
     const vector3 origin = raymond.origin();
     for (int i = 0; i < 3; i++) {
+        if (raymond.direction()[i] == 0.0f)
+        {
+            if (origin[i] < box->_min[i] || origin[i] > box->_max[i]) {
+                return -1; // Ray is outside and parallel → No intersection
+            }
+            continue;
+        }
         float invD = 1.0f / (raymond.direction()[i]);
         float t1 = (box->_min[i] - (origin[i])) * invD;
         float t2 = (box->_max[i] - (origin[i])) * invD;

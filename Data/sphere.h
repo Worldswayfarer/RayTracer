@@ -6,7 +6,7 @@ class sphere
 {
 public:
 	double ray_sphere_intersetion(const ray& raymond);
-
+	sphere(point3 center, double radius) : center(center), radius(radius) {}
 private:
 	point3 center;
 	double radius;

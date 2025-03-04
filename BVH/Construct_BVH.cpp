@@ -5,7 +5,7 @@
 #include <cmath>
 
 
-const int number_of_buckets = 4;
+const int number_of_buckets = 8;
 
 bool compareX(triangle3& a, triangle3& b)
 {
@@ -47,6 +47,17 @@ AABB* expand_AABB(AABB* target, AABB* other) {
     return target;
 }
 
+AABB* expand_AABB_with_primitives(AABB* target, triangle3* other) {
+    target->_min = minimum(target->_min, other->a());
+    target->_min = minimum(target->_min, other->b());
+    target->_min = minimum(target->_min, other->c());
+    target->_max = maximum(target->_max, other->a());
+    target->_max = maximum(target->_max, other->b());
+    target->_max = maximum(target->_max, other->c());
+    return target;
+}
+
+
 struct Bucket {
     AABB bounds;
     int count = 0;
@@ -65,7 +76,7 @@ BVHNode* construct_node(BVHNode* parent, std::vector<triangle3>* primitives)
     BVHNode* node = new BVHNode();
 
     
-
+    node->primitive_count = primitives->size();
     AABB* parent_AABB;
     if (!parent) {
         parent_AABB = construct_AABB(primitives);
@@ -100,11 +111,12 @@ BVHNode* construct_node(BVHNode* parent, std::vector<triangle3>* primitives)
         // Initialize buckets
         std::vector<Bucket> buckets(number_of_buckets);
         float bucket_size = (max_axis - min_axis) / number_of_buckets;
+        if(bucket_size > primitives->size())bucket_size = primitives->size();
 
         // Assign primitives to buckets
-        for (const auto& p : *primitives) {
+        for (triangle3 p : *primitives) {
             int b = std::min(number_of_buckets - 1, int((p.center()[axis] - min_axis) / bucket_size));
-            expand_AABB(&buckets[b].bounds, parent_AABB);
+            expand_AABB_with_primitives(&buckets[b].bounds, &p);
             buckets[b].count++;
         }
         
@@ -121,7 +133,7 @@ BVHNode* construct_node(BVHNode* parent, std::vector<triangle3>* primitives)
 
             right = AABB();
             for (int j = bucket + 1; j < number_of_buckets; ++j) {
-                expand_AABB(&right, &buckets[bucket].bounds);
+                expand_AABB(&right, &buckets[j].bounds);
             }
 
             if (!is_valid_AABB(left) or !is_valid_AABB(right)){

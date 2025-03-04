@@ -7,3 +7,4 @@
 #include <cstdlib>
 
 std::tuple<std::vector<triangle3>*, int> build_scene(size_t cube_count = 1);
+std::tuple < std::vector<triangle3>*, int> build_plane(point3 center, size_t size);
